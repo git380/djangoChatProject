@@ -1,3 +1,6 @@
-from django.shortcuts import render
+from django.http import HttpResponse
 
-# Create your views here.
+
+def index(request):
+    # render() に置き換えると、用意したHTMLファイルにrequestやPythonの変数を渡すこともできる
+    return HttpResponse("Hello, world. You're at the polls index.")
