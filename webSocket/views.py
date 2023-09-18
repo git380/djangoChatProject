@@ -1,6 +1,5 @@
-from django.http import HttpResponse
+from django.shortcuts import render
 
 
 def index(request):
-    # render() に置き換えると、用意したHTMLファイルにrequestやPythonの変数を渡すこともできる
-    return HttpResponse("Hello, world. You're at the polls index.")
+    return render(request, 'webSocket/index.html')
