@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from webSocket.models import LoginInfo
 
 
@@ -19,7 +19,17 @@ def login(request):
         # nameとpwが一致した場合try 一致しなかった場合except
         try:
             login_info = LoginInfo.objects.get(username=username, password=password)
+            request.session['username'] = username  # ユーザー名をセッションに保存
             return render(request, 'loginok.html')
         except LoginInfo.DoesNotExist:
             return render(request, 'loginng.html')
     return render(request, 'login.html')
+
+
+def chat(request):
+    username = request.session.get('username')
+    # ログインしていない場合はログインページにリダイレクト
+    if not username:
+        return redirect('login')
+
+    return render(request, 'chat.html', {'name': username})
