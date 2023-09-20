@@ -3,7 +3,7 @@ from webSocket.models import LoginInfo
 
 
 def index(request):
-    return render(request, 'webSocket/index.html')
+    return render(request, 'index.html')
 
 
 def login(request):
@@ -21,10 +21,10 @@ def login(request):
             login_info = LoginInfo.objects.get(username=username, password=password)
             request.session['username'] = username  # ユーザー名をセッションに保存
             request.session['role'] = login_info.role  # "role"をセッションに保存
-            return render(request, 'loginok.html')
+            return render(request, 'login/loginok.html')
         except LoginInfo.DoesNotExist:
-            return render(request, 'loginng.html')
-    return render(request, 'login.html')
+            return render(request, 'login/loginng.html')
+    return render(request, 'login/login.html')
 
 
 def chat(request):
@@ -33,7 +33,7 @@ def chat(request):
     if not username:
         return redirect('login')
 
-    return render(request, 'chat.html', {'name': username})
+    return render(request, 'chat/chat.html', {'name': username})
 
 
 def contact(request):

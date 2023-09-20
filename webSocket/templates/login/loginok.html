@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ようこそ</title>
+</head>
+<body>
+<h2>
+    ようこそ {{ request.session.username }}
+    {% if request.session.role == 1 %}
+        先生
+    {% else %}
+        さん
+    {% endif %}
+</h2>
+<a href="{% url 'contact' %}">掲示板へ移動</a>
+<a href="{% url 'chat' %}">チャットへ移動</a>
+</body>
+</html>
