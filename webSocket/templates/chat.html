@@ -1,11 +1,106 @@
 <!DOCTYPE html>
-<html>
+<html lang="jp">
 <head>
     <meta charset="UTF-8">
-    <title>WebSocketチャット</title>
+    <title>WebSocket Chat</title>
 </head>
 <body>
-    <input type="text" id="idInput" value="管理者:{{ name }}">
-    <button id="joinButton">参加</button>
+<input type="text" id="idInput" value="{{ name }}">
+<input type="text" id="message" placeholder="メッセージを入力">
+<button onclick="sendMessage()">送信</button>
+<div id="chat"></div>
+
+<script>
+    const webSocket = new WebSocket("ws://localhost:8765");
+
+    // メッセージを受信
+    webSocket.onmessage = (event) => {
+        const chat = document.getElementById("chat");
+        const indata = JSON.parse(event.data);
+        const messageId = indata.messageId;
+
+        // すでに表示されているメッセージを検索
+        const existingMessage = document.getElementById(`message-${messageId}`);
+
+        if (existingMessage) {
+            // すでに表示されているメッセージがあれば、内容を更新
+            // 未読・既読
+            const readStatus = existingMessage.querySelector("p.read-status");
+            if (readStatus) {
+                if (indata.checked) {
+                    readStatus.textContent = "既読";
+                } else {
+                    readStatus.textContent = "未読";
+                }
+            }
+            // チェックボックス
+            const checkbox = existingMessage.querySelector("input[type='checkbox']");
+            if (checkbox) {
+                checkbox.checked = indata.checked;
+            }
+        } else {
+            // 新しいメッセージを作成
+            const message = document.createElement("p");//pタグ作成
+            // idにmessageIDを設定
+            message.id = `message-${messageId}`;
+            // 表示内容
+            message.textContent = indata.client_id + "さん | " + "チャット:" + indata.message;
+
+            const idInput = document.getElementById("idInput");
+            const checkbox = document.createElement("input");
+
+            // 未読・既読機能
+            if (idInput.value === indata.client_id) {
+                const check = document.createElement("p");
+                if (indata.checked) {
+                    check.textContent = "既読"
+                } else {
+                    check.textContent = "未読"
+                }
+                // 未読・既読ステータスを識別するためのクラスを追加
+                check.classList.add("read-status");
+                // 未読・既読をpタグの後に追加
+                message.appendChild(check);
+            } else {
+                // チェックボックスを作成
+                checkbox.type = "checkbox";
+                checkbox.checked = indata.checked;
+                // チェックボックスをpタグの後に追加
+                message.appendChild(checkbox);
+            }
+
+            // チェックボックスが変更されたときの処理
+            checkbox.addEventListener("change", function () {
+                // チェックボックスの状態を代入
+                indata["checked"] = checkbox.checked
+                // JSONに戻してサーバへ送信
+                webSocket.send(JSON.stringify(indata));
+            });
+
+            // messageをdivタグのchatの後に追加
+            chat.appendChild(message);
+        }
+    };
+
+    // 送信ボタンが押されると、入力された文字を送る
+    function sendMessage() {
+        const messageInput = document.getElementById("message");
+        const message = messageInput.value;
+        const idInput = document.getElementById("idInput");
+        const clientId = idInput.value;
+        // JavaScriptオブジェクトを作成
+        const data = {
+            "messageId": Date.now(),
+            "client_id": clientId,
+            "message": message,
+            "checked": false  // チェックボックスの初期状態
+        };
+        // JSONへ変換
+        const jsonData = JSON.stringify(data);
+        // 送信
+        webSocket.send(jsonData);
+        messageInput.value = "";
+    }
+</script>
 </body>
 </html>
