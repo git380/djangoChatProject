@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ようこそ</title>
+</head>
+<body>
+<h2>
+    ようこそ {{ request.session.username }} 様
+</h2>
+<a href="{% url 'info_list' %}">データベースへ移動</a>
+</body>
+</html>

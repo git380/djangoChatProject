@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from webSocket.models import LoginInfo
-import hashlib
+from hashing import hashing
 
 
 def index(request):
@@ -11,24 +11,19 @@ def index(request):
 def login(request):
     if request.method == 'POST':
         # login.htmlからPOSTされた内容を取得
-        username = request.POST['username']
+        login_id = request.POST['login_id']
         password = request.POST['password']
-        print(f"Received username: {username}, password: {password}")
-        # データベースの内容をすべて出力
-        login_info_list = LoginInfo.objects.all()
-        for login_info in login_info_list:
-            print(f"Username: {login_info.username}, Password: {login_info.password}, Role: {login_info.role}")
-        # salt+name+passそれぞれハッシュ化
-        salt = hashlib.sha256('ahlve@HQ)E#IGOJ`E3*{}Or]mX@r[jre>,wsr5t6TY'.encode("utf-8")).hexdigest().encode("utf-8")
-        hash_username = hashlib.sha256(username.encode("utf-8")).hexdigest().encode("utf-8")
-        hash_password = hashlib.sha256(password.encode("utf-8")).hexdigest().encode("utf-8")
-        # まとめてハッシュ化
-        password = hashlib.sha256(salt + hash_username + hash_password).hexdigest()
+        print(f"Received username: {login_id}, password: {password}")
+        # ハッシュ化
+        password = hashing(login_id, password)
         # nameとpwが一致した場合try 一致しなかった場合except
         try:
-            login_info = LoginInfo.objects.get(username=username, password=password)
-            request.session['username'] = username  # ユーザー名をセッションに保存
+            login_info = LoginInfo.objects.get(login_id=login_id, password=password)
+            request.session['login_id'] = login_id  # ユーザー名をセッションに保存
+            request.session['username'] = login_info.name  # "name"をセッションnameに俩存
             request.session['role'] = login_info.role  # "role"をセッションに保存
+            if login_info.role == 3:
+                return render(request, 'administrator/loginok.html')
             return render(request, 'login/loginok.html')
         except LoginInfo.DoesNotExist:
             return render(request, 'login/loginng.html')
@@ -55,6 +50,8 @@ def contact(request):
         return render(request, 'contact/teacher.html', {'name': username})
     elif role == 2:
         return render(request, 'contact/student.html', {'name': username})
+    else:
+        return redirect('login')
 
 
 def logout(request):
