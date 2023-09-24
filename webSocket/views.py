@@ -1,3 +1,4 @@
+from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from webSocket.models import LoginInfo
 from hashing import hashing
@@ -80,7 +81,7 @@ def info_update(request, login_id):
         if request.POST.get('name_checkbox'):
             login_info.name = request.POST['name']
         if request.POST.get('password_checkbox'):
-            login_info.password = request.POST['password']
+            login_info.password = hashing(login_id, request.POST['password'])
         if request.POST.get('address_checkbox'):
             login_info.address = request.POST['address']
         if request.POST.get('role_checkbox'):
@@ -91,3 +92,28 @@ def info_update(request, login_id):
         return redirect('info_list')
 
     return render(request, 'administrator/login_info_update.html', {'login_info': login_info})
+
+
+def login_info_add(request):
+    # ログインしていない場合もしくは管理者でない場合
+    if request.session.get('role') != 3:
+        return redirect('login')
+
+    if request.method == 'POST':
+        login_id = request.POST['login_id']
+        if LoginInfo.objects.filter(login_id=login_id).exists():
+            return HttpResponse('既に登録されているIDです。')
+        else:
+            # DBへ追加
+            login_info = LoginInfo(
+                login_id=login_id,
+                name=request.POST['name'],
+                password=hashing(login_id, request.POST['password']),
+                address=request.POST['address'],
+                role=request.POST['role']
+            )
+            login_info.save()
+
+            return redirect('info_list')
+
+    return render(request, 'administrator/login_info_add.html')

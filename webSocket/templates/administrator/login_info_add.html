@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="jp">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <form method="post">
+        {% csrf_token %}
+        <label for="login_id">ID:</label>
+        <input type="text" id="login_id" name="login_id"><br>
+
+        <label for="name">名前:</label>
+        <input type="text" id="name" name="name"><br>
+
+        <label for="password">パスワード:</label>
+        <input type="password" id="password" name="password"><br>
+
+        <label for="address">メールアドレス:</label>
+        <input type="text" id="address" name="address"><br>
+
+        <label for="role">ロール:</label>
+        <select id="role" name="role">
+            <option value="1">学生</option>
+            <option value="2">先生</option>
+            <option value="3">管理者</option>
+        </select><br>
+
+        <input type="submit" value="追加">
+    </form>
+</body>
+</html>
