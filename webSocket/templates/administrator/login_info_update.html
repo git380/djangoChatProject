@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>変更</title>
+</head>
+<body>
+    <h1>変更</h1>
+    <h2>ID:{{ login_info.login_id }}</h2>
+    <form method="post" action="{% url 'info_update' login_info.login_id %}">
+        {% csrf_token %}
+        <label for="name">名前:</label>
+        <input type="text" id="name" name="name" value="{{ login_info.name }}" disabled>
+        <input type="checkbox" id="name_checkbox" name="name_checkbox"><br>
+
+        <label for="password">パスワード:</label>
+        <input type="password" id="password" name="password" required disabled>
+        <input type="checkbox" id="password_checkbox" name="password_checkbox"><br>
+
+        <label for="address">メールアドレス:</label>
+        <input type="text" id="address" name="address" value="{{ login_info.address }}" disabled>
+        <input type="checkbox" id="address_checkbox" name="address_checkbox"><br>
+
+        <label for="role">ロール:</label>
+        <select id="role" name="role" disabled>
+            <option value="1" {% if login_info.role == 1 %}selected{% endif %}>学生</option>
+            <option value="2" {% if login_info.role == 2 %}selected{% endif %}>先生</option>
+            <option value="3" {% if login_info.role == 3 %}selected{% endif %}>管理者</option>
+        </select>
+        <input type="checkbox" id="role_checkbox" name="role_checkbox"><br>
+
+        <input type="submit" value="変更">
+    </form>
+
+    <script>
+        function toggleDisabled(element, checkbox) {
+            element.disabled = !checkbox.checked;
+        }
+
+        // Add event listeners to toggle field states when checkboxes change
+        document.getElementById('name_checkbox').addEventListener('change', function() {
+            toggleDisabled(document.getElementById('name'), this);
+        });
+
+        document.getElementById('password_checkbox').addEventListener('change', function() {
+            toggleDisabled(document.getElementById('password'), this);
+        });
+
+        document.getElementById('address_checkbox').addEventListener('change', function() {
+            toggleDisabled(document.getElementById('address'), this);
+        });
+
+        document.getElementById('role_checkbox').addEventListener('change', function() {
+            toggleDisabled(document.getElementById('role'), this);
+        });
+    </script>
+</body>
+</html>

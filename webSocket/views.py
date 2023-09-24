@@ -57,3 +57,37 @@ def contact(request):
 def logout(request):
     request.session.flush()
     return render(request, 'login/logout.html')
+
+
+def info_list(request):
+    # ログインしていない場合もしくは管理者でない場合
+    if request.session.get('role') != 3:
+        return redirect('login')
+
+    login_info_list = LoginInfo.objects.all()
+    return render(request, 'administrator/loginlist.html', {'login_info_list': login_info_list})
+
+
+def info_update(request, login_id):
+    # ログインしていない場合もしくは管理者でない場合
+    if request.session.get('role') != 3:
+        return redirect('login')
+
+    login_info = LoginInfo.objects.get(login_id=login_id)
+
+    if request.method == 'POST':
+        # login_info_update.htmlで、チェックされた内容を変更
+        if request.POST.get('name_checkbox'):
+            login_info.name = request.POST['name']
+        if request.POST.get('password_checkbox'):
+            login_info.password = request.POST['password']
+        if request.POST.get('address_checkbox'):
+            login_info.address = request.POST['address']
+        if request.POST.get('role_checkbox'):
+            login_info.role = request.POST['role']
+        login_info.save()
+
+        print(f"Received: {login_info}")
+        return redirect('info_list')
+
+    return render(request, 'administrator/login_info_update.html', {'login_info': login_info})

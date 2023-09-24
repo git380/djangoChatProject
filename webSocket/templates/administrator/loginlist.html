@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Employee List</title>
+</head>
+<body>
+<h1>Employee List</h1>
+<table>
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Role</th>
+        <th>Update</th>
+    </tr>
+    {% for login_info in login_info_list %}
+        <tr>
+            <td>{{ login_info.login_id }}</td>
+            <td>{{ login_info.name }}</td>
+            <td>{{ login_info.role }}</td>
+            <td>
+                <form action="{% url 'info_update' login_info.login_id %}">
+                    {% csrf_token %}
+                    <input type="submit" value="Update">
+                </form>
+            </td>
+        </tr>
+    {% endfor %}
+</table>
+</body>
+</html>

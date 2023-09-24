@@ -5,4 +5,6 @@ urlpatterns = [
     path('chat/', views.chat, name='chat'),
     path('contact/', views.contact, name='contact'),
     path('logout/', views.logout, name='logout'),
+    path('info_list/', views.info_list, name='info_list'),
+    path('info_update/<str:login_id>/', views.info_update, name='info_update'),
 ]
