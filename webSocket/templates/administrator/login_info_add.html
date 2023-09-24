@@ -8,16 +8,16 @@
     <form method="post">
         {% csrf_token %}
         <label for="login_id">ID:</label>
-        <input type="text" id="login_id" name="login_id"><br>
+        <input type="text" id="login_id" name="login_id" required><br>
 
         <label for="name">名前:</label>
-        <input type="text" id="name" name="name"><br>
+        <input type="text" id="name" name="name" required><br>
 
         <label for="password">パスワード:</label>
-        <input type="password" id="password" name="password"><br>
+        <input type="password" id="password" name="password" required><br>
 
         <label for="address">メールアドレス:</label>
-        <input type="text" id="address" name="address"><br>
+        <input type="text" id="address" name="address" required><br>
 
         <label for="role">ロール:</label>
         <select id="role" name="role">

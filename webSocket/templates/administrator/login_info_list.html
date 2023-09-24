@@ -11,7 +11,8 @@
     <tr>
         <th>ID</th>
         <th>名前</th>
-        <th>Role</th>
+        <th>メールアドレス</th>
+        <th>ロール</th>
         <th>変更</th>
         <th>削除</th>
     </tr>
@@ -19,7 +20,12 @@
         <tr>
             <td>{{ login_info.login_id }}</td>
             <td>{{ login_info.name }}</td>
-            <td>{{ login_info.role }}</td>
+            <td>{{ login_info.address }}</td>
+            <td>
+                {% if login_info.role == 1 %}学生{% endif %}
+                {% if login_info.role == 2 %}先生{% endif %}
+                {% if login_info.role == 3 %}管理者{% endif %}
+            </td>
             <td>
                 <form action="{% url 'info_update' login_info.login_id %}">
                     {% csrf_token %}

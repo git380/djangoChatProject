@@ -6,7 +6,7 @@
 <body>
 <h2>
     ようこそ {{ request.session.username }}
-    {% if request.session.role == 1 %}
+    {% if request.session.role == 2 %}
         先生
     {% else %}
         さん
@@ -14,5 +14,6 @@
 </h2>
 <a href="{% url 'contact' %}">掲示板へ移動</a>
 <a href="{% url 'chat' %}">チャットへ移動</a>
+<a href="{% url 'logout' %}">ログアウト</a>
 </body>
 </html>

@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Login</title>
+    <title>ログイン</title>
 </head>
 <body>
-    <h2>Login</h2>
+    <h2>ログイン</h2>
     <form method="post" action="{% url 'login' %}">
         {% csrf_token %}
         <label for="login_id">ID:</label>
         <input type="text" id="login_id" name="login_id" required><br><br>
-        <label for="password">Password:</label>
+        <label for="password">パスワード:</label>
         <input type="password" id="password" name="password" required><br><br>
-        <input type="submit" value="Login">
+        <input type="submit" value="ログイン">
     </form>
 </body>
 </html>

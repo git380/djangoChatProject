@@ -10,6 +10,12 @@
     <p>ID: {{ login_info.login_id }}</p>
     <p>名前: {{ login_info.name }}</p>
     <p>メールアドレス: {{ login_info.address }}</p>
+    <p>
+        ロール:
+        {% if login_info.role == 1 %}学生{% endif %}
+        {% if login_info.role == 2 %}先生{% endif %}
+        {% if login_info.role == 3 %}管理者{% endif %}
+    </p>
 
     <form method="post" action="{% url 'delete_info' login_info.login_id %}">
         {% csrf_token %}

@@ -24,10 +24,10 @@ def login(request):
             request.session['username'] = login_info.name  # "name"をセッションnameに俩存
             request.session['role'] = login_info.role  # "role"をセッションに保存
             if login_info.role == 3:
-                return render(request, 'administrator/loginok.html')
-            return render(request, 'login/loginok.html')
+                return render(request, 'administrator/loginOK.html')
+            return render(request, 'login/loginOK.html')
         except LoginInfo.DoesNotExist:
-            return render(request, 'login/loginng.html')
+            return render(request, 'login/loginNG.html')
     return render(request, 'login/login.html')
 
 
@@ -48,9 +48,9 @@ def contact(request):
         return redirect('login')
 
     if role == 1:
-        return render(request, 'contact/teacher.html', {'name': username})
-    elif role == 2:
         return render(request, 'contact/student.html', {'name': username})
+    elif role == 2:
+        return render(request, 'contact/teacher.html', {'name': username})
     else:
         return redirect('login')
 
@@ -66,7 +66,7 @@ def info_list(request):
         return redirect('login')
 
     login_info_list = LoginInfo.objects.all()
-    return render(request, 'administrator/loginlist.html', {'login_info_list': login_info_list})
+    return render(request, 'administrator/login_info_list.html', {'login_info_list': login_info_list})
 
 
 def info_update(request, login_id):

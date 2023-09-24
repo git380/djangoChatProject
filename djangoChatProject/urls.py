@@ -19,7 +19,7 @@ from django.urls import path, include
 from webSocket import views
 
 urlpatterns = [
-    path('index/', views.index, name='index'),
+    path('', views.index, name='index'),
     path('admin/', admin.site.urls),
     path('', include('webSocket.urls')),
 ]
