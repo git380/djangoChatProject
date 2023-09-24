@@ -4,6 +4,7 @@ import hashlib
 
 
 def index(request):
+    request.session.flush()
     return render(request, 'index.html')
 
 
@@ -54,3 +55,8 @@ def contact(request):
         return render(request, 'contact/teacher.html', {'name': username})
     elif role == 2:
         return render(request, 'contact/student.html', {'name': username})
+
+
+def logout(request):
+    request.session.flush()
+    return render(request, 'login/logout.html')

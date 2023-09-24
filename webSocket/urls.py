@@ -4,4 +4,5 @@ urlpatterns = [
     path('login/', views.login, name='login'),
     path('chat/', views.chat, name='chat'),
     path('contact/', views.contact, name='contact'),
+    path('logout/', views.logout, name='logout'),
 ]
