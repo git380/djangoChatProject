@@ -10,9 +10,10 @@
 <table>
     <tr>
         <th>ID</th>
-        <th>Name</th>
+        <th>名前</th>
         <th>Role</th>
-        <th>Update</th>
+        <th>変更</th>
+        <th>削除</th>
     </tr>
     {% for login_info in login_info_list %}
         <tr>
@@ -22,7 +23,13 @@
             <td>
                 <form action="{% url 'info_update' login_info.login_id %}">
                     {% csrf_token %}
-                    <input type="submit" value="Update">
+                    <input type="submit" value="変更">
+                </form>
+            </td>
+            <td>
+                <form action="{% url 'delete_info' login_info.login_id %}">
+                    {% csrf_token %}
+                    <input type="submit" value="削除">
                 </form>
             </td>
         </tr>

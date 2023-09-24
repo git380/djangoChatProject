@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>削除確認</title>
+</head>
+<body>
+    <h1>削除確認</h1>
+    <p>以下の情報を削除しますか？</p>
+    <p>ID: {{ login_info.login_id }}</p>
+    <p>名前: {{ login_info.name }}</p>
+    <p>メールアドレス: {{ login_info.address }}</p>
+
+    <form method="post" action="{% url 'delete_info' login_info.login_id %}">
+        {% csrf_token %}
+        <input type="submit" value="削除">
+    </form>
+</body>
+</html>

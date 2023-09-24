@@ -117,3 +117,17 @@ def login_info_add(request):
             return redirect('info_list')
 
     return render(request, 'administrator/login_info_add.html')
+
+
+def delete_info(request, login_id):
+    # ログインしていない場合もしくは管理者でない場合
+    if request.session.get('role') != 3:
+        return redirect('login')
+
+    login_info = LoginInfo.objects.get(login_id=login_id)
+
+    if request.method == 'POST':
+        login_info.delete()
+        return redirect('info_list')
+
+    return render(request, 'administrator/login_info_delete.html', {'login_info': login_info})
