@@ -11,91 +11,98 @@
 <script>
     const webSocket = new WebSocket("ws://localhost:8765");
 
-    // メッセージを受信
-    webSocket.onmessage = (event) => {
-        const chat = document.getElementById("chat");
-        const indata = JSON.parse(event.data);
-        const messageId = indata.messageId;
+    // WebSocketの接続が開いたときの処理
+    webSocket.onopen = () => {
+        console.log('WebSocketが開かれました。');
+        // json履歴受け取り
+        fetch('contact_history.json')
+            .then(data => data.json())
+            .then(contactHistory => {
+                for (const key in contactHistory) {
+                    handleMessage(JSON.parse(contactHistory[key]));
+                }
+            });
+    };
+    // メッセージを受信したときの処理
+    webSocket.onmessage = event => handleMessage(JSON.parse(event.data));
+    // WebSocketの接続が閉じたときの処理
+    webSocket.onclose = () => console.log('WebSocketが閉じられました。');
 
-        const idInput = document.getElementById("idInput");
-        const clientId = idInput.value;
+
+    // メッセージを処理する関数
+    function handleMessage(data) {
+        const idInput = document.getElementById('idInput').value;
 
         // すでに表示されているメッセージを検索
-        const existingMessage = document.getElementById(`message-${messageId}`);
+        const existingMessage = document.getElementById(`message-${data['message_id']}`);
 
-        if (existingMessage) {
-            // すでに表示されているメッセージがあれば、内容を更新
-            // 未読・既読
-            const readStatus = existingMessage.querySelector("p.read-status");
-            if (readStatus) {
-                // キーとそのステータスを格納する配列
-                const keyStatus = [];
-                for (const key in indata.checked) {
-                    if (indata.checked[key]) {
-                        keyStatus.push(key + "=既読");
-                    } else {
-                        keyStatus.push(key + "=未読");
-                    }
-                }
-                // 配列の内容をテキストとして表示
-                readStatus.textContent = keyStatus.join(" / ");
-            }
-            // チェックボックス
-            const checkbox = existingMessage.querySelector("input[type='checkbox']");
-            if (checkbox) {
-                checkbox.checked = indata.checked[clientId];
-            }
-        } else {
+        // 作成 or 更新
+        if (!existingMessage) {
             // 新しいメッセージを作成
-            const message = document.createElement("p");//pタグ作成
+            const message = document.createElement('p');//pタグ作成
             // idにmessageIDを設定
-            message.id = `message-${messageId}`;
-            // 表示内容
-            message.textContent = indata.client_id + "さん | " + "チャット:" + indata.message;
+            message.id = `message-${data['message_id']}`;
 
-            const checkbox = document.createElement("input");
+            // 表示内容
+            message.textContent = data['client_id'] + 'さん | ' + 'チャット:' + data['message'];
 
             // 未読・既読機能
-            if (idInput.value === indata.client_id) {
-                const check = document.createElement("p");
+            if (idInput === data['client_id']) {
+                const check = document.createElement('p');
                 // キーとそのステータスを格納する配列
                 const keyStatus = [];
-                for (const key in indata.checked) {
-                    if (indata.checked[key]) {
-                        keyStatus.push(key + "=既読");
+                for (const key in data['checked']) {
+                    if (data['checked'][key]) {
+                        keyStatus.push(key + '=既読');
                     } else {
-                        keyStatus.push(key + "=未読");
+                        keyStatus.push(key + '=未読');
                     }
                 }
                 // 配列の内容をテキストとして表示
-                check.textContent = keyStatus.join(" / ");
+                check.textContent = keyStatus.join(' / ');
                 // 未読・既読ステータスを識別するためのクラスを追加
-                check.classList.add("read-status");
+                check.classList.add('read-status');
                 // 未読・既読をpタグの後に追加
                 message.appendChild(check);
             } else {
                 // チェックボックスを作成
-                checkbox.type = "checkbox";
-                checkbox.checked = indata.checked[clientId];
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.checked = data['checked'][idInput];
                 // チェックボックスをpタグの後に追加
                 message.appendChild(checkbox);
+
+                // チェックボックスが変更されたときの処理
+                checkbox.addEventListener('change', () => {
+                    // チェックボックスの状態をサーバーに送信
+                    const check_data = {
+                        'message_id': data['message_id'],
+                        'client_id': data['client_id'],
+                        'message': data['message'],
+                        'checked': {[idInput]: checkbox.checked}
+                    };
+                    // JSONに戻してサーバへ送信
+                    webSocket.send(JSON.stringify(check_data));
+                });
             }
-
-            // チェックボックスが変更されたときの処理
-            checkbox.addEventListener("change", function () {
-                // チェックボックスの状態をサーバーに送信
-                const data = {
-                    "messageId": messageId,
-                    "client_id": indata.client_id,
-                    "message": indata.message,
-                    "checked": {[clientId]: checkbox.checked}
-                };
-                // JSONに戻してサーバへ送信
-                webSocket.send(JSON.stringify(data));
-            });
-
             // messageをdivタグのchatの後に追加
-            chat.appendChild(message);
+            document.getElementById('chat').appendChild(message);
+        } else {
+            // すでに表示されているメッセージがあれば、内容を更新
+            const readStatus = existingMessage.querySelector('p.read-status');
+            if (readStatus) {
+                // キーとそのステータスを格納する配列
+                const keyStatus = [];
+                for (const key in data['checked']) {
+                    if (data['checked'][key]) {
+                        keyStatus.push(key + '=既読');
+                    } else {
+                        keyStatus.push(key + '=未読');
+                    }
+                }
+                // 配列の内容をテキストとして表示
+                readStatus.textContent = keyStatus.join(' / ');
+            }
         }
     }
 </script>
