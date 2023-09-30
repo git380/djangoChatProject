@@ -2,6 +2,7 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from webSocket.models import LoginInfo
 from hashing import hashing
+import json
 
 
 def index(request):
@@ -31,13 +32,26 @@ def login(request):
     return render(request, 'login/login.html')
 
 
-def chat(request):
-    username = request.session.get('username')
+def chat_list(request):
+    login_id = request.session.get('login_id')
     # ログインしていない場合はログインページにリダイレクト
-    if not username:
+    if not login_id:
         return redirect('login')
 
-    return render(request, 'chat/chat.html', {'name': username})
+    partner_list = LoginInfo.objects.exclude(role=3).all()
+
+    return render(request, 'chat/chat_list.html', {'partner_list': partner_list})
+
+
+def chat(request, toid):
+    login_id = request.session.get('login_id')
+    # ログインしていない場合はログインページにリダイレクト
+    if not login_id:
+        return redirect('login')
+
+    to_info = LoginInfo.objects.get(login_id=toid)
+    chat_info = {'toNameInput': to_info.name, 'toInput': toid, 'idInput': login_id}
+    return render(request, 'chat/chat.html', {'chat_info': chat_info})
 
 
 def contact(request):
@@ -131,3 +145,29 @@ def delete_info(request, login_id):
         return redirect('info_list')
 
     return render(request, 'administrator/login_info_delete.html', {'login_info': login_info})
+
+
+def message_history(request):
+    # ログインしていない場合もしくは管理者でない場合
+    if request.session.get('role') != 3:
+        return redirect('login')
+
+    id_list = LoginInfo.objects.values_list('login_id', flat=True)
+
+    if request.method == 'POST':
+        chat_list = []
+        id1 = request.POST['name1']
+        id2 = request.POST['name2']
+        with open('chat_history.json', 'r', encoding='utf-8') as json_file:
+            chat_history = json.load(json_file)
+        for message_id, message in chat_history.items():  # 辞書の中身(JSON)をすべて送信する
+            data = json.loads(message)
+            if data['client_id'] == id1 and data['to_client'] == id2:
+                # id1 から id2 に送信された
+                chat_list.append(f"{id1}:{data['message']}")
+            if data['client_id'] == id2 and data['to_client'] == id1:
+                # id2 から id1 に送信された
+                chat_list.append(f"{id2}:{data['message']}")
+        return render(request, 'administrator/chat_history.html', {'chat_list': chat_list})
+
+    return render(request, 'administrator/all_chat_history.html', {'id_list': id_list})

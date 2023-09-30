@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <form method="POST" action="{% url 'message_history' %}">
+        {% csrf_token %}
+
+        <label for="name1">Name 1:</label>
+        <select id="name1" name="name1">
+            {% for name in id_list %}
+                <option value="{{ name }}">{{ name }}</option>
+            {% endfor %}
+        </select>
+
+        <br>
+
+        <label for="name2">Name 2:</label>
+        <select id="name2" name="name2">
+            {% for name in id_list %}
+                <option value="{{ name }}">{{ name }}</option>
+            {% endfor %}
+        </select>
+
+        <br>
+
+        <input type="submit" value="Submit">
+    </form>
+</body>
+</html>

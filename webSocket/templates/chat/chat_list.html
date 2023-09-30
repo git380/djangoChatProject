@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="jp">
+<head>
+    <meta charset="UTF-8">
+    <title>ログインDB</title>
+</head>
+<body>
+<h1>ログインDB</h1>
+<table>
+    <tr>
+        <th>ID</th>
+        <th>名前</th>
+        <th>メールアドレス</th>
+        <th>ロール</th>
+        <th>チャット開始</th>
+    </tr>
+    {% for partner in partner_list %}
+        <tr>
+            <td>{{ partner.login_id }}</td>
+            <td>{{ partner.name }}</td>
+            <td>{{ partner.address }}</td>
+            <td>
+                {% if partner.role == 1 %}学生{% endif %}
+                {% if partner.role == 2 %}先生{% endif %}
+            </td>
+            <td>
+                <form action="{% url 'chat' partner.login_id %}">
+                    {% csrf_token %}
+                    <input type="submit" value="開始">
+                </form>
+            </td>
+        </tr>
+    {% endfor %}
+</table>
+</body>
+</html>
