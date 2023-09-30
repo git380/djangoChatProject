@@ -49,44 +49,22 @@
             message.textContent = data['client_id'] + 'さん | ' + 'チャット:' + data['message'];
 
             // 未読・既読機能
-            if (idInput === data['client_id']) {
-                const check = document.createElement('p');
-                // キーとそのステータスを格納する配列
-                const keyStatus = [];
-                for (const key in data['checked']) {
-                    if (data['checked'][key]) {
-                        keyStatus.push(key + '=既読');
-                    } else {
-                        keyStatus.push(key + '=未読');
-                    }
+            const check = document.createElement('p');
+            // キーとそのステータスを格納する配列
+            const keyStatus = [];
+            for (const key in data['checked']) {
+                if (data['checked'][key]) {
+                    keyStatus.push(key + '=既読');
+                } else {
+                    keyStatus.push(key + '=未読');
                 }
-                // 配列の内容をテキストとして表示
-                check.textContent = keyStatus.join(' / ');
-                // 未読・既読ステータスを識別するためのクラスを追加
-                check.classList.add('read-status');
-                // 未読・既読をpタグの後に追加
-                message.appendChild(check);
-            } else {
-                // チェックボックスを作成
-                const checkbox = document.createElement('input');
-                checkbox.type = 'checkbox';
-                checkbox.checked = data['checked'][idInput];
-                // チェックボックスをpタグの後に追加
-                message.appendChild(checkbox);
-
-                // チェックボックスが変更されたときの処理
-                checkbox.addEventListener('change', () => {
-                    // チェックボックスの状態をサーバーに送信
-                    const check_data = {
-                        'message_id': data['message_id'],
-                        'client_id': data['client_id'],
-                        'message': data['message'],
-                        'checked': {[idInput]: checkbox.checked}
-                    };
-                    // JSONに戻してサーバへ送信
-                    webSocket.send(JSON.stringify(check_data));
-                });
             }
+            // 配列の内容をテキストとして表示
+            check.textContent = keyStatus.join(' / ');
+            // 未読・既読ステータスを識別するためのクラスを追加
+            check.classList.add('read-status');
+            // 未読・既読をpタグの後に追加
+            message.appendChild(check);
             // messageをdivタグのchatの後に追加
             document.getElementById('chat').appendChild(message);
         } else {
