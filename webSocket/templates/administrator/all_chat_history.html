@@ -8,7 +8,7 @@
     <form method="POST" action="{% url 'message_history' %}">
         {% csrf_token %}
 
-        <label for="name1">Name 1:</label>
+        <label for="name1">名前を選択してください:</label>
         <select id="name1" name="name1">
             {% for name in id_list %}
                 <option value="{{ name }}">{{ name }}</option>
@@ -17,7 +17,7 @@
 
         <br>
 
-        <label for="name2">Name 2:</label>
+        <label for="name2">名前を選択してください:</label>
         <select id="name2" name="name2">
             {% for name in id_list %}
                 <option value="{{ name }}">{{ name }}</option>
@@ -26,7 +26,7 @@
 
         <br>
 
-        <input type="submit" value="Submit">
+        <input type="submit" value="閲覧">
     </form>
 </body>
 </html>

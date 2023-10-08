@@ -7,9 +7,11 @@
     <link type="text/css" rel="stylesheet" href="{% static 'chat/chat.css' %}"/>
 </head>
 <body>
-<input type="hidden" id="toNameInput" value="{{ chat_info.toNameInput }}"><br>
+<input type="hidden" id="toNameInput" value="{{ chat_info.toNameInput }}">
 <input type="hidden" id="toInput" placeholder="To" value="{{ chat_info.toInput }}">
 <input type="hidden" id="idInput" value="{{ chat_info.idInput }}">
+<label>読み上げ機能<input type="checkbox" id="mode"></label>
+話者選択:<select id="speakerSelect"></select>
 <!-- チャットの外側部分① -->
 <div id="messages_container">
     <!-- ヘッダー部分② -->

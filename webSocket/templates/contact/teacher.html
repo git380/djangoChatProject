@@ -11,19 +11,24 @@
 <div id="chat"></div>
 
 <script>
-    const webSocket = new WebSocket("ws://localhost:8765");
+    const webSocket = new WebSocket('wss://xm4319z6z4.execute-api.us-east-1.amazonaws.com/production');
 
     // WebSocketの接続が開いたときの処理
     webSocket.onopen = () => {
         console.log('WebSocketが開かれました。');
         // json履歴受け取り
-        fetch('contact_history.json')
-            .then(data => data.json())
+        fetch('https://erygod339e.execute-api.us-east-1.amazonaws.com/rest', {
+            method: 'POST',
+            body: 'contact_history',
+            headers: {'Content-Type': 'text/plain'}
+        })
+            .then(response => response.ok ? response.json() : Promise.reject('Network response was not ok.'))
             .then(contactHistory => {
                 for (const key in contactHistory) {
                     handleMessage(JSON.parse(contactHistory[key]));
                 }
-            });
+            })
+            .catch(error => console.error('エラー:', error));
     };
     // メッセージを受信したときの処理
     webSocket.onmessage = event => handleMessage(JSON.parse(event.data));
@@ -33,8 +38,6 @@
 
     // メッセージを処理する関数
     function handleMessage(data) {
-        const idInput = document.getElementById('idInput').value;
-
         // すでに表示されているメッセージを検索
         const existingMessage = document.getElementById(`message-${data['message_id']}`);
 

@@ -3,6 +3,7 @@ from django.shortcuts import render, redirect
 from webSocket.models import LoginInfo
 from hashing import hashing
 import json
+import requests
 
 
 def index(request):
@@ -38,8 +39,7 @@ def chat_list(request):
     if not login_id:
         return redirect('login')
 
-    partner_list = LoginInfo.objects.exclude(role=3).all()
-
+    partner_list = LoginInfo.objects.exclude(role=3).exclude(login_id=login_id).all()
     return render(request, 'chat/chat_list.html', {'partner_list': partner_list})
 
 
@@ -115,20 +115,21 @@ def login_info_add(request):
 
     if request.method == 'POST':
         login_id = request.POST['login_id']
+        # データベースにIDがある場合
         if LoginInfo.objects.filter(login_id=login_id).exists():
             return HttpResponse('既に登録されているIDです。')
-        else:
-            # DBへ追加
-            login_info = LoginInfo(
-                login_id=login_id,
-                name=request.POST['name'],
-                password=hashing(login_id, request.POST['password']),
-                address=request.POST['address'],
-                role=request.POST['role']
-            )
-            login_info.save()
 
-            return redirect('info_list')
+        # DBへ追加
+        login_info = LoginInfo(
+            login_id=login_id,
+            name=request.POST['name'],
+            password=hashing(login_id, request.POST['password']),
+            address=request.POST['address'],
+            role=request.POST['role']
+        )
+        login_info.save()
+
+        return redirect('info_list')
 
     return render(request, 'administrator/login_info_add.html')
 
@@ -155,19 +156,19 @@ def message_history(request):
     id_list = LoginInfo.objects.values_list('login_id', flat=True)
 
     if request.method == 'POST':
-        chat_list = []
+        message_list = []
         id1 = request.POST['name1']
         id2 = request.POST['name2']
-        with open('chat_history.json', 'r', encoding='utf-8') as json_file:
-            chat_history = json.load(json_file)
+        url = 'https://erygod339e.execute-api.us-east-1.amazonaws.com/rest'
+        chat_history = requests.post(url, data='chat_history').json()
         for message_id, message in chat_history.items():  # 辞書の中身(JSON)をすべて送信する
             data = json.loads(message)
             if data['client_id'] == id1 and data['to_client'] == id2:
                 # id1 から id2 に送信された
-                chat_list.append(f"{id1}:{data['message']}")
-            if data['client_id'] == id2 and data['to_client'] == id1:
+                message_list.append(f"{id1}:{data['message']}")
+            elif data['client_id'] == id2 and data['to_client'] == id1:
                 # id2 から id1 に送信された
-                chat_list.append(f"{id2}:{data['message']}")
-        return render(request, 'administrator/chat_history.html', {'chat_list': chat_list})
+                message_list.append(f"{id2}:{data['message']}")
+        return render(request, 'administrator/chat_history.html', {'message_list': message_list})
 
     return render(request, 'administrator/all_chat_history.html', {'id_list': id_list})
