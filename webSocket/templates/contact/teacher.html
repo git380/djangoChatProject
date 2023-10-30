@@ -92,17 +92,23 @@
     // 送信ボタンが押されると、入力された文字を送る
     function sendMessage() {
         const messageInput = document.getElementById('message');
-        // JavaScriptオブジェクトを作成
-        const data = {
+        // JavaScriptオブジェクトをJSONへ変換して送信
+        webSocket.send(JSON.stringify({
             'message_id': Date.now(),
             'client_id': document.getElementById('idInput').value,
             'message': messageInput.value,
             'checked': {} // チェックボックスの初期状態
-        };
-        // JSONへ変換して送信
-        webSocket.send(JSON.stringify(data));
+        }));
         messageInput.value = '';
     }
+
+    // Tabで送信
+    document.getElementById('message').addEventListener('keydown', (event) => {
+        if (event.key === 'Tab') {
+            event.preventDefault();
+            sendMessage();
+        }
+    });
 </script>
 </body>
 </html>
