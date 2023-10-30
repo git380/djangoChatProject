@@ -1,10 +1,46 @@
+{% load static %}
 <!DOCTYPE html>
+<html lang="ja">
 <html>
 <head>
+    <meta charset="UTF-8">
     <title>ようこそ</title>
+    <style>
+        /* 基本 */
+        img {max-width: 100%;}
+        .box {width: 280px;overflow: hidden;margin: 10px 8px 10px 16px;position: relative;}
+        .items{width:100%;height:100%;overflow:hidden;position:relative;}
+        .items img{vertical-align: bottom;}
+        /* 文字を表示しない */
+        .items .caption {width:100%;height:100%;visibility:hidden;font-size:130%;color:#fff;top:0;left:0;position:absolute;text-align:center;-webkit-transition:all 0.2s step-end;transition:all 0.2s step-end;display: flex;flex-direction: column;justify-content: center;align-items: center;}
+        /* 文字を表示する */
+        .items:hover .caption {visibility:visible;}
+        /* ホバーが解除された時すぐ消えるように、文字を表示しない */
+        .items .caption p {font-size:130%;color:#fff;opacity:0;}
+        /* 文字を表示する */
+        .items:hover .caption p {opacity:1;}
+        /* 上下半部のサイズでマスクをかける */
+        .items .mask1, .items .mask2 {width:100%;height:50%;position:absolute;left:0;background-color:rgba(0,0,0,0.4);-webkit-transition:all 0.2s ease;transition:all 0.2s ease;}
+        /* 枠の上に置いて表示させない */
+        .items .mask1 {top:-50%;}
+        /* 下にずらして表示する */
+        .items:hover .mask1 {top:0;}
+        /* 枠の下に置いて表示させない */
+        .items .mask2 {bottom:-50%;}
+        /* 上にずらして表示する */
+        .items:hover .mask2 {bottom:0;}
+    </style>
 </head>
 <body>
     <h2>ようこそ</h2>
-    <a href="{% url 'login' %}">ログインページへ移動</a>
+    <div class="box">
+        <a href="{% url 'login' %}">
+            <div class="items"><img src="{% static 'image/login.jpg' %}" alt="">
+                <div class="mask1"></div>
+                <div class="mask2"></div>
+                <div class="caption"><p>ログインページへ移動</p></div>
+            </div>
+        </a>
+    </div>
 </body>
 </html>

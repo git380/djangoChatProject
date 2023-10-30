@@ -33,25 +33,10 @@
     </form>
 
     <script>
-        function toggleDisabled(element, checkbox) {
-            element.disabled = !checkbox.checked;
-        }
-
-        // Add event listeners to toggle field states when checkboxes change
-        document.getElementById('name_checkbox').addEventListener('change', function() {
-            toggleDisabled(document.getElementById('name'), this);
-        });
-
-        document.getElementById('password_checkbox').addEventListener('change', function() {
-            toggleDisabled(document.getElementById('password'), this);
-        });
-
-        document.getElementById('address_checkbox').addEventListener('change', function() {
-            toggleDisabled(document.getElementById('address'), this);
-        });
-
-        document.getElementById('role_checkbox').addEventListener('change', function() {
-            toggleDisabled(document.getElementById('role'), this);
+        ['name', 'password', 'address', 'role'].forEach(id => {
+            document.getElementById(`${id}_checkbox`).addEventListener('change', function() {
+                document.getElementById(id).disabled = !this.checked;
+            });
         });
     </script>
 </body>
