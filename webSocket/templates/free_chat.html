@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>WebSocketチャット</title>
+</head>
+<body>
+<input type="text" id="idInput" placeholder="ID">
+<button id="joinButton" onclick="startWebSocket()">参加</button>
+<br>
+<input type="text" id="messageInput" placeholder="メッセージ" required>
+<button id="sendButton" onclick="sendMessage()" disabled>送信</button>
+<div id="chat"></div>
+
+<script>
+    let webSocket; // WebSocketを格納する変数
+
+    // 参加ボタンが押されたときにWebSocketを開始
+    function startWebSocket() {
+        webSocket = new WebSocket('wss://8lobvmiuc7.execute-api.us-east-1.amazonaws.com/production');
+
+        // WebSocketの接続が開いたときの処理
+        webSocket.onopen = () => {
+            console.log('WebSocketが開かれました。');
+            // ID入力欄・参加ボタンを無効にする
+            document.getElementById('idInput').disabled = true;
+            document.getElementById('joinButton').disabled = true;
+            // 参加後に送信ボタンを有効にする
+            document.getElementById('sendButton').disabled = false;
+            // json履歴受け取り
+            fetch('https://erygod339e.execute-api.us-east-1.amazonaws.com/rest', {
+                method: 'POST',
+                body: 'freechat_history',
+                headers: {'Content-Type': 'text/plain'}
+            })
+                .then(response => response.ok ? response.json() : Promise.reject('Network response was not ok.'))
+                .then(freechatHistory => freechatHistory.forEach(data => handleMessage(data))) // リストの中身すべて表示
+                .catch(error => console.error('エラー:', error));
+        };
+        // メッセージを受信したときの処理
+        webSocket.onmessage = event => handleMessage(JSON.parse(event.data));
+        // WebSocketの接続が閉じたときの処理
+        webSocket.onclose = () => console.log('WebSocketが閉じられました。');
+    }
+
+    // メッセージを表示する関数
+    function handleMessage(data) {
+        // pタグを作成
+        const message = document.createElement('p');
+        // メッセージを作成
+        message.textContent = data.client_id + 'さん | ' + 'チャット:' + data.message;
+        // messageをdivタグのchatの後に追加
+        document.getElementById('chat').appendChild(message);
+    }
+
+    // 送信ボタンが押されると、入力された文字を送る
+    function sendMessage() {
+        // メッセージ入力欄
+        const messageInput = document.getElementById('messageInput');
+        // JavaScriptオブジェクトをJSONへ変換して送信
+        webSocket.send(JSON.stringify({
+            'client_id': document.getElementById('idInput').value,
+            'message': messageInput.value
+        }));
+        // 入力欄リセット
+        messageInput.value = '';
+    }
+</script>
+</body>
+</html>

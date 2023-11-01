@@ -14,4 +14,5 @@ urlpatterns = [
     path('delete_info/<str:login_id>/', views.delete_info, name='delete_info'),
     path('delete_info/', views.delete_info, name='delete_info_noid'),
     path('message_history/', views.message_history, name='message_history'),
+    path('free_chat/', views.free_chat, name='free_chat'),
 ]

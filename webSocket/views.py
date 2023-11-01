@@ -186,3 +186,7 @@ def message_history(request):
 
     return render(request, 'administrator/all_chat_history.html',
                   {'id_list': LoginInfo.objects.values_list('login_id', flat=True)})
+
+
+def free_chat(request):
+    return render(request, 'free_chat.html')
