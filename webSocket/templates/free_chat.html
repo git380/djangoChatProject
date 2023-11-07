@@ -5,14 +5,31 @@
     <title>WebSocketチャット</title>
 </head>
 <body>
+<label>読み上げ機能<input type="checkbox" id="mode"></label>
+話者選択:<select id="speakerSelect"></select>
+<br>
 <input type="text" id="idInput" placeholder="ID">
 <button id="joinButton" onclick="startWebSocket()">参加</button>
 <br>
 <input type="text" id="messageInput" placeholder="メッセージ" required>
 <button id="sendButton" onclick="sendMessage()" disabled>送信</button>
+
 <div id="chat"></div>
 
 <script>
+    // VOICEVOX 話者一覧の取得
+    fetch('https://static.tts.quest/voicevox_speakers.json')
+        .then(response => response.json())
+        .then(speakers => speakers.forEach(speaker => {  // JSONから取得したspeakers配列をループする
+            // 各speakerに対してリストの内容を作成する
+            const option = document.createElement('option');
+            option.value = speaker;
+            option.text = speaker;
+            // 各speakerに対してspeakerSelectの中にリストを追加する
+            document.getElementById('speakerSelect').appendChild(option);
+        }))
+        .catch(error => console.error('Error fetching speakers:', error));
+
     let webSocket; // WebSocketを格納する変数
 
     // 参加ボタンが押されたときにWebSocketを開始
@@ -49,6 +66,17 @@
         const message = document.createElement('p');
         // メッセージを作成
         message.textContent = data.client_id + 'さん | ' + 'チャット:' + data.message;
+        // メッセージにクリックイベントリスナーを追加
+        message.addEventListener('click', () => {
+            if (document.getElementById('mode').checked) {
+                new TtsQuestV3Voicevox(
+                    // クリックされた要素内のテキストコンテンツを取得
+                    document.getElementById('speakerSelect').selectedIndex,
+                    // .message_display クラスを持つ要素のテキストを取得する
+                    data.message
+                ).play();
+            }
+        });
         // messageをdivタグのchatの後に追加
         document.getElementById('chat').appendChild(message);
     }
@@ -64,6 +92,45 @@
         }));
         // 入力欄リセット
         messageInput.value = '';
+    }
+
+    // Tabで送信
+    document.getElementById('messageInput').addEventListener('keydown', (event) => {
+        if (event.key === 'Tab') {
+            event.preventDefault();
+            sendMessage();
+        }
+    });
+
+    // Audioクラスを継承して新しいクラスTtsQuestV3Voicevoxを定義する
+    class TtsQuestV3Voicevox extends Audio {
+        constructor(speakerId, text) {
+            super();  // 親クラスのコンストラクターを呼び出す
+            // リクエストパラメーター(speaker,text)を格納して、音声合成のメソッド#mainを呼び出す
+            this.#main(this, new URLSearchParams({speaker: speakerId, text: text}));
+        }
+
+        // 非公開メソッド#main - 音声合成リクエストをAPIに送信して音声を取得する
+        #main(owner, query) {
+            // 既にsrc属性に音声ファイルがセットされている場合は処理を中断する
+            if (owner.src.length > 0) return;
+            // fetch関数を使って合成リクエストを送信し、レスポンスを処理する
+            fetch('https://api.tts.quest/v3/voicevox/synthesis' + '?' + query.toString())
+                .then(response => response.json())
+                .then(response => {
+                    // レスポンスにretryAfter(待機時間(秒))が含まれている場合、APIリクエストが頻繁すぎるときは再試行する
+                    if (typeof response['retryAfter'] !== 'undefined') {
+                        setTimeout(owner.#main, 1000 * (1 + response['retryAfter']), owner, query);
+                    // レスポンスにmp3StreamingUrlが含まれている場合、音声ファイルのURLをsrcにセットする
+                    } else if (typeof response['mp3StreamingUrl'] !== 'undefined') {
+                        owner.src = response['mp3StreamingUrl'];
+                    // レスポンスにerrorMessageが含まれている場合、エラーをスローする
+                    } else if (typeof response['errorMessage'] !== 'undefined') {
+                        throw new Error(response['errorMessage']);
+                    // 上記以外の場合、サーバーエラーとしてエラーをスローする
+                    } else throw new Error('serverError');
+                });
+        }
     }
 </script>
 </body>
