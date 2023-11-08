@@ -6,8 +6,8 @@
 </head>
 <body>
 <input type="hidden" id="idInput" value="{{ name }}">
-<input type="text" id="message" placeholder="メッセージを入力">
-<button onclick="sendMessage()">送信</button>
+<input type="text" id="message" placeholder="メッセージを入力" disabled>
+<button id="sendButton" onclick="sendMessage()" disabled>送信</button>
 <div id="chat"></div>
 
 <script>
@@ -16,6 +16,9 @@
     // WebSocketの接続が開いたときの処理
     webSocket.onopen = () => {
         console.log('WebSocketが開かれました。');
+        // 空文字でなければ、送信ボタンを有効にする
+        const message = document.getElementById('message');
+        message.addEventListener('input', () => document.getElementById('sendButton').disabled = !message.value.trim());
         // json履歴受け取り
         fetch('https://erygod339e.execute-api.us-east-1.amazonaws.com/rest', {
             method: 'POST',
@@ -28,7 +31,8 @@
                     handleMessage(JSON.parse(contactHistory[key]));
                 }
             })
-            .catch(error => console.error('エラー:', error));
+            .catch(error => console.error('エラー:', error))
+            .finally(() => message.disabled = false); // メッセージ入力欄を有効にする
     };
     // メッセージを受信したときの処理
     webSocket.onmessage = event => handleMessage(JSON.parse(event.data));
@@ -100,6 +104,7 @@
             'checked': {} // チェックボックスの初期状態
         }));
         messageInput.value = '';
+        document.getElementById('sendButton').disabled = true;
     }
 
     // Tabで送信

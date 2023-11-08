@@ -11,7 +11,7 @@
 <input type="text" id="idInput" placeholder="ID">
 <button id="joinButton" onclick="startWebSocket()">参加</button>
 <br>
-<input type="text" id="messageInput" placeholder="メッセージ" required>
+<input type="text" id="messageInput" placeholder="メッセージ" disabled>
 <button id="sendButton" onclick="sendMessage()" disabled>送信</button>
 
 <div id="chat"></div>
@@ -42,8 +42,9 @@
             // ID入力欄・参加ボタンを無効にする
             document.getElementById('idInput').disabled = true;
             document.getElementById('joinButton').disabled = true;
-            // 参加後に送信ボタンを有効にする
-            document.getElementById('sendButton').disabled = false;
+            // 空文字でなければ、送信ボタンを有効にする
+            const message = document.getElementById('messageInput');
+            message.addEventListener('input', () => document.getElementById('sendButton').disabled = !message.value.trim());
             // json履歴受け取り
             fetch('https://erygod339e.execute-api.us-east-1.amazonaws.com/rest', {
                 method: 'POST',
@@ -52,7 +53,8 @@
             })
                 .then(response => response.ok ? response.json() : Promise.reject('Network response was not ok.'))
                 .then(freechatHistory => freechatHistory.forEach(data => handleMessage(data))) // リストの中身すべて表示
-                .catch(error => console.error('エラー:', error));
+                .catch(error => console.error('エラー:', error))
+                .finally(() => message.disabled = false); // メッセージ入力欄を有効にする
         };
         // メッセージを受信したときの処理
         webSocket.onmessage = event => handleMessage(JSON.parse(event.data));
@@ -92,6 +94,7 @@
         }));
         // 入力欄リセット
         messageInput.value = '';
+        document.getElementById('sendButton').disabled = true;
     }
 
     // Tabで送信

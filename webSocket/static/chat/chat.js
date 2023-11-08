@@ -19,8 +19,9 @@ const webSocket = new WebSocket('wss://wnukwbocq5.execute-api.us-east-1.amazonaw
 // WebSocketの接続が開いたときの処理
 webSocket.onopen = () => {
     console.log('WebSocketが開かれました。');
-    // 参加後に送信ボタンを有効にする
-    document.getElementById('sendButton').disabled = false;
+    // 空文字でなければ、送信ボタンを有効にする
+    const message = document.getElementById('message');
+    message.addEventListener('input', () => document.getElementById('sendButton').disabled = !message.value.trim());
 
     // オンラインステータス送信
     webSocket.send(JSON.stringify({
@@ -63,7 +64,8 @@ webSocket.onopen = () => {
                 handleMessage(JSON.parse(chatHistory[key]));
             }
         })
-        .catch(error => console.error('エラー:', error));
+        .catch(error => console.error('エラー:', error))
+        .finally(() => message.disabled = false); // メッセージ入力欄を有効にする
 };
 // メッセージを受信したときの処理
 webSocket.onmessage = (event) => {
@@ -188,6 +190,7 @@ function sendMessage() {
         'checked': false  // チェックボックスの初期状態
     }));
     messageInput.value = '';
+    document.getElementById('sendButton').disabled = true;
 }
 
 // Tabで送信
